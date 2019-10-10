@@ -1,4 +1,5 @@
 import * as BABYLON from 'babylonjs';
+import FilterLayer from './FilterLayer'
 
 export class NeuralNetwork {
     layers = []
@@ -42,6 +43,18 @@ export class NeuralNetwork {
         this.layers.forEach(layer => layer.animate())
     }
 
+    calculate () {
+        let total = 0
+        this.layers.forEach(layer => {
+            if (layer instanceof FilterLayer) {
+                const weights = layer.width * layer.height * layer.depth * layer.filterDepth + layer.filterDepth
+                console.log('Weights', weights)
+                total += weights
+            }
+        })
+        console.log('total weights', total)
+    }
+
     _windowResize = () => {
         this.engine.resize();
     }
@@ -49,6 +62,7 @@ export class NeuralNetwork {
     _setup () {
         this.engine = new BABYLON.Engine(this.canvas, true);
         this.scene = new BABYLON.Scene(this.engine);
+        this.scene.clearColor = new BABYLON.Color3(0.92, 0.92, 0.92);
 
         // var camera = new BABYLON.ArcRotateCamera(
         //     "Camera", 

@@ -29,12 +29,12 @@ class App extends React.Component {
       width: 3,
       height: 3,
       filterDepth: 4,
-      stride: 1
+      padding: 1
     }))
 
     this.nn.addLayer(new ConvLayer({
-      width: 6,
-      height: 6,
+      width: 8,
+      height: 8,
       depth: 4,
       opaque: true
     }))

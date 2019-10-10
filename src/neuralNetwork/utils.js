@@ -1,25 +1,33 @@
 import * as BABYLON from 'babylonjs';
 import { GridMaterial } from  'babylonjs-materials';
 
-export const getGridMaterial = (scene, config, color, hasOpacity) => {
-    const { depth, width, height } = config
+export const getGridMaterial = (opts) => {
+    const { 
+        scene, 
+        depth, 
+        width, 
+        height, 
+        lineColor, 
+        mainColor, 
+        opaque, 
+    } = opts
 
     // https://playground.babylonjs.com/#T40FK
     const gridMaterial = new GridMaterial('gridFrontBack', scene)
     gridMaterial.majorUnitFrequency = width;
     gridMaterial.gridOffset = new BABYLON.Vector3(-width/2, -height/2, 0);
-	gridMaterial.mainColor = new BABYLON.Color3(1, 1, 1);
-    gridMaterial.lineColor = color
-    if (hasOpacity) {
+	gridMaterial.mainColor = mainColor || new BABYLON.Color3(1, 1, 1);
+    gridMaterial.lineColor = lineColor
+    if (opaque) {
         gridMaterial.opacity = .9;
     }
 
     const gridMaterial2 = new GridMaterial('gridSide', scene)
     gridMaterial2.majorUnitFrequency = Math.max(depth, width, height);
     gridMaterial2.gridOffset = new BABYLON.Vector3(-width/2, -height/2, -depth/2);
-    gridMaterial2.mainColor = new BABYLON.Color3(1, 1, 1);
-    gridMaterial2.lineColor = color
-    if (hasOpacity) {
+    gridMaterial2.mainColor = mainColor || new BABYLON.Color3(1, 1, 1);
+    gridMaterial2.lineColor = lineColor
+    if (opaque) {
         gridMaterial2.opacity = .9;
     }
 

@@ -12,7 +12,8 @@ export default class FilterLayer extends Layer {
         this.height = opts.height
         this.depth = opts.depth
         this.filterDepth = opts.filterDepth
-        this.stride = opts.stride
+        this.stride = opts.stride || 1
+        this.padding = opts.padding || 0
     }
 
     animate() {
@@ -27,7 +28,14 @@ export default class FilterLayer extends Layer {
         const { scene } = this.nn
 
         const orange = new BABYLON.Color3(1,0.6,0)
-        const multi = getGridMaterial(scene, { depth, width, height } , orange, false)
+
+        const multi = getGridMaterial({
+            scene: this.nn.scene,
+            depth, 
+            width, 
+            height,
+            lineColor: orange
+        })
 
         const root = Math.ceil(Math.sqrt(filterDepth))
 
@@ -62,7 +70,8 @@ export default class FilterLayer extends Layer {
 
     _animateFilterBox(filterBoxIndex) {
         if (filterBoxIndex === this.animatedFilterBoxes.length) {
-            return this._animateFilterBox(0)
+            return
+            // return this._animateFilterBox(0)
         }
 
         const onAnimationEnd = () => this._animateFilterBox(filterBoxIndex + 1)
@@ -84,8 +93,8 @@ export default class FilterLayer extends Layer {
             );
 
             const keys = []
-            let x = prevLayer.width / 2 - (this.width / 2)
-            let y = prevLayer.height / 2 - (this.height / 2)
+            let x = prevLayer.width / 2 - (this.width / 2) + this.padding
+            let y = prevLayer.height / 2 - (this.height / 2) + this.padding
             let z = prevLayer.startDepthPosition + (this.depth / 2)
             const startPosition = box.getPositionExpressedInLocalSpace()
            
@@ -98,13 +107,13 @@ export default class FilterLayer extends Layer {
             const FROM_START = 15
 
             let frame
-            const stepsDown = 1 + prevLayer.height - this.height
-            const stepsAcross = 1 + prevLayer.width - this.width
+            const stepsDown = 1 + prevLayer.height - this.height + (2 * this.padding)
+            const stepsAcross = 1 + prevLayer.width - this.width + (2 * this.padding)
 
-            for (let i = 0; i < stepsDown; i++) {
-                for (let j = 0; j < stepsAcross; j++) {
+            for (let i = 0; i < stepsDown; i += this.stride) {
+                for (let j = 0; j < stepsAcross; j += this.stride) {
                     
-                    frame = FROM_START + TIME_ACROSS * i + j * (TIME_ACROSS / stepsAcross)
+                    frame = FROM_START + TIME_ACROSS * i/this.stride + j * (TIME_ACROSS / stepsAcross)
 
                     keys.push({
                         frame: frame,
@@ -115,7 +124,7 @@ export default class FilterLayer extends Layer {
                     })
                 }
     
-                y -= 1
+                y -= 1 * this.stride
             }
     
             keys.push({
@@ -132,7 +141,7 @@ export default class FilterLayer extends Layer {
     _createAnimatedConvBoxes() {
         const nextLayer = this.nn.getLayerAtIndex(this.layerIndex + 1)
 
-        const color = new BABYLON.Color3(1,1,0)
+        const color = new BABYLON.Color3(1,0.6,0)
 
         for (let i=0; i<nextLayer.depth; i++) {
             for (let j=0; j<nextLayer.height; j++) {
@@ -146,12 +155,6 @@ export default class FilterLayer extends Layer {
         
                 const yPosition =  nextLayer.height / 2 - (1/2) 
         
-                // const initialPosition = new BABYLON.Vector3(
-                //     nextLayer.width / 2 - (1/2),
-                //     yPosition,
-                //     nextLayer.startDepthPosition + (1/2)
-                // )
-
                 const initialPosition = new BABYLON.Vector3(
                     nextLayer.width / 2 ,
                     yPosition - j,
