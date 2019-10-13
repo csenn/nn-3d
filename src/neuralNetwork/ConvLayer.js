@@ -9,6 +9,7 @@ export default class ConvLayer extends Layer {
         this.height = config.height
         this.depth = config.depth
         this.opaque = !!config.opaque
+        this.startY = config.startY || 0
     }
 
     build () {
@@ -21,14 +22,13 @@ export default class ConvLayer extends Layer {
             width, 
             height,
             opaque: this.opaque,
-            // lineColor: new BABYLON.Color3(0,0,0), 
             lineColor: new BABYLON.Color3(0,0,0), 
 
             mainColor: new BABYLON.Color3(.85,.85,.85)
         })
             
         const box = BABYLON.MeshBuilder.CreateBox('box', { width, height, depth }, scene)
-        box.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, this.startDepthPosition + depth/2));
+        box.setPositionWithLocalVector(new BABYLON.Vector3(0, this.startY, this.startDepthPosition + depth/2));
         
         addBoxMeshes(box)
         box.material = multi
